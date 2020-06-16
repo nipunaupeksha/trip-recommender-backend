@@ -100,3 +100,42 @@ exports.updateVehicle = function (req, res, next) {
         }
     });
 };
+
+exports.addDriver = function (req, res, next) {
+    let driverName = req.body.driverName;
+    let license = req.body.license;
+    let phone = req.body.phone;
+    let email = req.body.email;
+    let transportId = req.body.transportId;
+    let query_ = "INSERT INTO driver(driverName, license, phone, email, transportId) values(?,?,?,?,?)";
+    dbConfig.query(query_, [driverName, license, phone, email, transportId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server");
+            console.log(err);
+            return res.status(401).send({ success: false, message: "Error connecting to server!" });
+        } else {
+            res.status(200).send({ success: true, data: { message: "Trip successfully created" } });
+            //console.log(address);
+        }
+    });
+};
+
+exports.updateDriver = function (req, res, next) {
+    let driverName = req.body.driverName;
+    let license = req.body.license;
+    let phone = req.body.phone;
+    let email = req.body.email;
+    let transportId = req.body.transportId;
+    let driverId = req.body.driverId;
+    let query_ = "UPDATE driver set driverName=?,license=?,phone=?,email=?,transportId=? where driverId=?";
+    dbConfig.query(query_, [driverName,license,phone,email,transportId,driverId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server");
+            console.log(err);
+            return res.status(401).send({ success: false, message: "Error connecting to server!" });
+        } else {
+            res.status(200).send({ success: true, data: { message: "Trip successfully created" } });
+            //console.log(address);
+        }
+    });
+};
