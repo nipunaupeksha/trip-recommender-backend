@@ -64,7 +64,7 @@ exports.addVehicle = function (req, res, next) {
     let usb = req.body.usb;
     let availability = req.body.availability;
     let transportId = req.body.transportId;
-    let query_ = "INSERT INTO vehicle(licensePlate,model,brand,noOfSeats,ac,cdplayer,usb,availability,transportId) values(?,?,?,?,?,?,?,?,?,?)";
+    let query_ = "INSERT INTO vehicle(licensePlate,model,brand,noOfSeats,ac,cdplayer,usb,availability,transportId) values(?,?,?,?,?,?,?,?,?)";
     dbConfig.query(query_, [licensePlate,model,brand,noOfSeats,ac,cdplayer,usb,availability,transportId], (err, rows) => {
         if (err) {
             console.log("Error Connecting to Server");
@@ -78,6 +78,7 @@ exports.addVehicle = function (req, res, next) {
 };
 
 exports.updateVehicle = function (req, res, next) {
+    let vehicleId= req.body.vehicleId;
     let licensePlate = req.body.licensePlate;
     let model = req.body.model;
     let brand = req.body.brand;
@@ -87,7 +88,6 @@ exports.updateVehicle = function (req, res, next) {
     let usb = req.body.usb;
     let availability = req.body.availability;
     let transportId = req.body.transportId;
-    let vehicleId = req.body.vehicleId;
     let query_ = "UPDATE vehicle set licensePlate=?,model=?,brand=?,noOfSeats=?,ac=?,cdplayer=?,usb=?,availability=?,transportId=? where vehicleId=?";
     dbConfig.query(query_, [licensePlate,model,brand,noOfSeats,ac,cdplayer,usb,availability,transportId,vehicleId], (err, rows) => {
         if (err) {
@@ -101,14 +101,45 @@ exports.updateVehicle = function (req, res, next) {
     });
 };
 
+exports.getVehicleDetails = function (req, res, next) {
+    let transportId = req.body.transportId;
+    let query_ = "SELECT * from vehicle natural join transport where transportId=?";
+    dbConfig.query(query_, [transportId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Vehicle & Transport !");
+            return res.status(404).send({ success: false, message: "Error Connecting to Server!" });
+        } else {
+            if (rows.length != 0) {
+                res.status(200).send({ success: true, data: rows });
+            }
+        }
+    });
+};
+
+exports.getTransportDetails = function (req, res, next) {
+    let transportId = req.body.transportId;
+    let query_ = "SELECT * from vehicle natural join transport natural join driver where transportId=?";
+    dbConfig.query(query_, [transportId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Vehicle & Transport !");
+            return res.status(404).send({ success: false, message: "Error Connecting to Server!" });
+        } else {
+            if (rows.length != 0) {
+                res.status(200).send({ success: true, data: rows });
+            }
+        }
+    });
+};
+
 exports.addDriver = function (req, res, next) {
     let driverName = req.body.driverName;
     let license = req.body.license;
     let phone = req.body.phone;
     let email = req.body.email;
     let transportId = req.body.transportId;
-    let query_ = "INSERT INTO driver(driverName, license, phone, email, transportId) values(?,?,?,?,?)";
-    dbConfig.query(query_, [driverName, license, phone, email, transportId], (err, rows) => {
+    let vehicleId=req.body.vehicleId;
+    let query_ = "INSERT INTO driver(driverName, license, driverPhone, driverMail, transportId,vehicleId) values(?,?,?,?,?,?)";
+    dbConfig.query(query_, [driverName, license, phone, email, transportId,vehicleId], (err, rows) => {
         if (err) {
             console.log("Error Connecting to Server");
             console.log(err);
@@ -121,14 +152,15 @@ exports.addDriver = function (req, res, next) {
 };
 
 exports.updateDriver = function (req, res, next) {
+    //let driverId=req.body.driverId;
     let driverName = req.body.driverName;
     let license = req.body.license;
     let phone = req.body.phone;
     let email = req.body.email;
     let transportId = req.body.transportId;
-    let driverId = req.body.driverId;
-    let query_ = "UPDATE driver set driverName=?,license=?,phone=?,email=?,transportId=? where driverId=?";
-    dbConfig.query(query_, [driverName,license,phone,email,transportId,driverId], (err, rows) => {
+    let vehicleId=req.body.vehicleId;
+    let query_ = "UPDATE driver set driverName=?,license=?,driverPhone=?,driverMail=?,transportId=? where vehicleId=?";
+    dbConfig.query(query_, [driverName,license,phone,email,transportId,vehicleId], (err, rows) => {
         if (err) {
             console.log("Error Connecting to Server");
             console.log(err);
@@ -136,6 +168,51 @@ exports.updateDriver = function (req, res, next) {
         } else {
             res.status(200).send({ success: true, data: { message: "Trip successfully created" } });
             //console.log(address);
+        }
+    });
+};
+
+exports.getDriverDetails = function (req, res, next) {
+    let transportId = req.body.transportId;
+    let query_ = "SELECT * from driver natural join transport where transportId=?";
+    dbConfig.query(query_, [transportId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Driver & Transport !");
+            return res.status(404).send({ success: false, message: "Error Connecting to Server!" });
+        } else {
+            if (rows.length != 0) {
+                res.status(200).send({ success: true, data: rows });
+            }
+        }
+    });
+};
+
+exports.checkValidityOfDriver = function (req, res, next) {
+    let vehicleId = req.body.vehicleId;
+    let query_ = "SELECT * from driver natural join transport where vehicleId=? ORDER BY driverId desc LIMIT 1";
+    dbConfig.query(query_, [vehicleId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server !");
+            return res.status(404).send({ success: false, message: "Error Connecting to Server!" });
+        } else {
+            if (rows.length != 0) {
+                res.status(200).send({ success: true, data: rows });
+            }
+        }
+    });
+};
+
+exports.checkValidityOfVehicle = function (req, res, next) {
+    let vehicleId = req.body.vehicleId;
+    let query_ = "SELECT * from vehicle natural join transport where vehicleId = ?";
+    dbConfig.query(query_, [vehicleId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server !");
+            return res.status(404).send({ success: false, message: "Error Connecting to Server!" });
+        } else {
+            if (rows.length != 0) {
+                res.status(200).send({ success: true, data: rows });
+            }
         }
     });
 };

@@ -82,3 +82,54 @@ exports.getHotelById = function (req, res, next) {
     });
 };
 
+exports.updateHotel= function (req, res, next) {
+    let luxury=req.body.luxury; 
+    let semiluxury=req.body.semiluxury; 
+    let deluxe=req.body.deluxe;
+    let suite=req.body.suite;
+    let luxac=req.body.luxac; 
+    let semiluxac=req.body.semiluxac; 
+    let deluxeac=req.body.deluxeac; 
+    let suiteac=req.body.suiteac; 
+    let adults=req.body.adults; 
+    let kids=req.body.kids; 
+    let price=req.body.price; 
+    let hotelId=req.body.hotelId;
+    let query_ = "UPDATE hoteldetails set noOfAdults=?,noOfKids=?,price=?,luxury=?,semiluxury=?,deluxe=?,suite=?,luxuryac=?,semiluxuryac=?,deluxeac=?,suiteac=? where hotelId=?";
+    dbConfig.query(query_, [adults,kids,price,luxury,semiluxury,deluxe,suite,luxac,semiluxac,deluxeac,suiteac,hotelId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server");
+            console.log(err);
+            return res.status(401).send({ success: false, message: "Error connecting to server!" });
+        } else {
+            res.status(200).send({ success: true, data: { message: "Trip successfully created" } });
+            //console.log(address);
+        }
+    });
+};
+
+exports.addHotelDetails= function (req, res, next) {
+    let luxury=req.body.luxury; 
+    let semiluxury=req.body.semiluxury; 
+    let deluxe=req.body.deluxe;
+    let suite=req.body.suite;
+    let luxac=req.body.luxac; 
+    let semiluxac=req.body.semiluxac; 
+    let deluxeac=req.body.deluxeac; 
+    let suiteac=req.body.suiteac; 
+    let adults=req.body.adults; 
+    let kids=req.body.kids; 
+    let price=req.body.price; 
+    let hotelId=req.body.hotelId;
+    let query_ = "INSERT into hoteldetails (noOfAdults,noOfKids,price,luxury,semiluxury,deluxe,suite,luxuryac,semiluxuryac,deluxeac,suiteac,hotelId)values(?,?,?,?,?,?,?,?,?,?,?,?)";
+    dbConfig.query(query_, [adults,kids,price,luxury,semiluxury,deluxe,suite,luxac,semiluxac,deluxeac,suiteac,hotelId], (err, rows) => {
+        if (err) {
+            console.log("Error Connecting to Server");
+            console.log(err);
+            return res.status(401).send({ success: false, message: "Error connecting to server!" });
+        } else {
+            res.status(200).send({ success: true, data: { message: "Trip successfully created" } });
+            //console.log(address);
+        }
+    });
+};
