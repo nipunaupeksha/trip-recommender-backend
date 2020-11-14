@@ -1,1 +1,1 @@
-# nadegura-backend
+# trip-recommender-backend
